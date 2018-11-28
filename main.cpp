@@ -9,7 +9,7 @@ int main(void)
 {
     Graph *g = new Graph();
 
-    g->populateGraph(g, 100);
+    g->populateGraph(g, 4);
     g->printGraph(g);
     
     return 0;

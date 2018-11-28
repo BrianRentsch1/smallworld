@@ -51,10 +51,16 @@ void Graph::populateGraph(Graph *g, int m)
         for(int j = 0; g->node_edges[i] < g->node_degrees[i]; j++) //Keep adding edges until the number of edges for node[i] == the degree of node[i]
         {
             int inserted_nodes[g->node_degrees[i]];  //Make an array of all nodes added to current index of adjecency list
+            bool in_list;
             do
             {
                 y = rand() % MAX_NODES;  //Generate a random node to make an edge with
-            } while(y == i);
+                for(int k = 0; k < g->node_degrees[i];k++)
+                {
+                    if(inserted_nodes[k] == y)
+                        in_list = true;
+                }
+            } while(y == i && !in_list);
             insertEdge(g,i,y,false);
         }        
     }    
@@ -63,15 +69,22 @@ void Graph::populateGraph(Graph *g, int m)
 void Graph::printGraph(Graph *g)
 {
     node *p;
+
     for(int i = 0; i < g->num_nodes; i++)
     {
+        int first = 1;
         printf("%d: ", i);
-        p = g->edges[i];
+        p = g->edges[i];        
+        
         while (p != NULL)
         {
-            printf(" %d", p->id);
-            p = p->next;
-                
+            if(first == 1)
+            {
+                p = p->next;
+                first = !first;
+            }         
+            printf(" %d", p->id);                        
+            p = p->next;        
         }
         printf("\n");
     }
