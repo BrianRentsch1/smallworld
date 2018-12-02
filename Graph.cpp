@@ -3,6 +3,7 @@
 #include <time.h>
 #include "Graph.h"
 #include <stdio.h>
+#include <queue>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ Graph::Graph()
 //Initialize new graph
 int Graph::initializeGraph(Graph *g, int m)
 {
-    srand(time(NULL));
+    srand(0);//time(NULL));
     g->num_nodes = 0;
     g->num_edges = 0;
     g->incomplete_nodes = 0;
@@ -66,7 +67,7 @@ void Graph::populateGraph(Graph *g, int m)
         cout << "Large M value detected. This might take a while..." << endl;
     }
     graph_populated = 1;
-    srand(time(NULL));
+    srand(0);//time(NULL));
     
     for(int i = 0; i < MAX_NODES; i++)  //For each node...
     {
@@ -187,7 +188,7 @@ void Graph::printGraph(Graph *g)
         
         while (p != NULL)
         {
-            if(first == 1)  //Skip one
+            if(first == 1)  //Skip first entry in list (which is the current node itself)
             {
                 p = p->next;
                 first = !first;
@@ -206,7 +207,70 @@ void Graph::printGraph(Graph *g)
         }
         else cout << endl;
     }
-    cout << "Total nodes: " << g->num_nodes << endl;
+    cout <<endl<< "Total nodes: " << g->num_nodes << endl;
     cout << "Total edges: " << g->num_edges << endl;
     cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
+}
+
+int Graph::bfs(Graph *g, int start, int destination)
+{
+    if(start >= MAX_NODES || destination >= MAX_NODES)
+    {
+        cout << "\nError:\tBFS could not be performed.\n\tInvalid start or destination node.\n\n";
+        return -1;  //Error
+    }
+    node *s = g->edges[start];
+    node *dst = g->edges[destination];
+    
+    if(s->id == dst->id)
+    {    
+        return 0;  //s = dst
+    }
+    bool visited[MAX_NODES];  //Keep track of which nodes have been visited
+
+    node *parent[MAX_NODES];  //Keep track of parent nodes
+    node *curr_node;  //current node
+    node *curr_neighbor;
+    
+    queue <node* > q;
+    q.push(s);
+    cout <<"\n\t*STARTING BFS*\n"<< endl;
+    while(!q.empty())
+    {
+        curr_node = q.front();
+        cout << curr_node->id << endl;
+        if(curr_node->id == dst->id)  //If we have found our destination...
+        {
+            return backtrack(g,parent,s,dst);
+        }
+        q.pop();
+        visited[curr_node->id] = true;
+        curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
+
+        while(curr_neighbor != nullptr)
+        {
+            int id = curr_neighbor->id;
+            if(visited[id] == false)  //If neighbor hasn't been visited...
+            {
+                q.push(curr_neighbor);  //push it to queue
+                visited[id] = true;   //mark as visited
+                parent[id] = curr_node;            //record parent    
+            }
+            curr_neighbor = curr_neighbor->next;  //advance along list
+        }
+    }
+    return -1;  //DST not found in graph containing s    
+}
+
+int Graph::backtrack(Graph *g, node *parents[MAX_NODES], node *s, node *dst)
+{
+    node *p = dst; //temp node pointer
+    int distance = 0;
+    
+    while(p->id != s->id)
+    {
+        distance++;
+        p = parents[p->id];  //go back one edge
+    }
+    return distance;
 }
