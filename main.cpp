@@ -10,19 +10,29 @@ int main(int argc, char *argv[])
 {
     int m;
     
-    if(argc == 1)
+    if(argc == 1)  //No arguments
     {
-        cout << endl << "Usage: \t./project2 <M value>\n" << endl;
+        cout << "\nUsage: \t./project2 <M value>\n\n";
         return 1;
     }
-    else if(argc > 2)
+    else if(argc > 2)  //Too many arguments
     {
-        cout << "Error: too many arguments" << endl;
+        cout << "\nError: too many arguments\n";
+        cout << "\nUsage: \t./project2 <M value>\n\n";           
         return 1;
     }
-    else
+    else    //Correct number of arguments
     {
-        m = stoi(argv[1]);        
+        try
+        {
+            m = stoi(argv[1]);   //Try converting arg to int
+        }
+        catch(...)  //If conversion fails, handle exception
+        {           
+            cout << "\nError: your M value should be an integer\n";
+            cout << "\nUsage: \t./project2 <M value>\n\n";
+            return 1;
+        }
     }
     
     Graph *g = new Graph();
