@@ -212,6 +212,26 @@ void Graph::printGraph(Graph *g)
     cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
 }
 
+void Graph::simplePrint(Graph *g)
+{
+    if(graph_populated == 0)  //Handle being called when graph has yet to be populated
+    {
+        cout << "Error:\tCould not print graph.\n\tPlease populate a graph with a valid M value first." << endl;
+        return;
+    }
+    
+    for(int i = 0; i < g->num_nodes; i++)
+    {        
+        if(g->node_degree[i] != g->node_edges[i])
+        {
+            g->incomplete_nodes += 1;
+        }
+    }
+    cout <<endl<< "Total nodes: " << g->num_nodes << endl;
+    cout << "Total edges: " << g->num_edges << endl;
+    cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
+}
+
 int Graph::bfs(Graph *g, int start, int destination)
 {
     if(start >= MAX_NODES || destination >= MAX_NODES)
@@ -238,7 +258,6 @@ int Graph::bfs(Graph *g, int start, int destination)
     while(!q.empty())
     {
         curr_node = q.front();
-        cout << curr_node->id << endl;
         if(curr_node->id == dst->id)  //If we have found our destination...
         {
             return backtrack(g,parent,s,dst);

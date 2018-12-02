@@ -1,5 +1,5 @@
 #include "node.h"
-#define MAX_NODES 10  //Our graph will represent a population of 100000
+#define MAX_NODES 100000  //Our graph will represent a population of 100000
 using namespace std;
 
 class Graph
@@ -16,7 +16,8 @@ public:
     
     Graph();
     void populateGraph(Graph *g, int m);    //Insert random edges into graph   
-    void printGraph(Graph *g);              //Print contents of graph
+    void printGraph(Graph *g);              //Print entire contents of graph as well as stats
+    void simplePrint(Graph *g);             //Don't print graph contents, just print stats
     int bfs(Graph *g, int start);             //Find shortest paths from s to all nodes 
     int bfs(Graph *g, int start, int destination);  //Find shortest path from node s to node dst
     
