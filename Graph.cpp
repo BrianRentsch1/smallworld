@@ -17,6 +17,7 @@ int Graph::initializeGraph(Graph *g, int m)
     srand(time(NULL));
     g->num_nodes = 0;
     g->num_edges = 0;
+    g->incomplete_nodes = 0;
     if((4*m)/3 > MAX_NODES)
     {        
         return 1;
@@ -36,6 +37,7 @@ int Graph::initializeGraph(Graph *g, int m)
 //Insert an edge into the graph
 void Graph::insertEdge(Graph *g, int x, int y, bool duplicate)
 {
+    //cout << "Inserting an edge (" << x << "," <<y<< ")" <<endl;
     node *p = new node(y);  //Allocate new node
     p->next = g->edges[x]->next;  //Append list to end of new node
     g->edges[x]->next = p;  //Insert new node at head of list
@@ -54,14 +56,14 @@ void Graph::populateGraph(Graph *g, int m)
     invalid_graph = initializeGraph(g, m);
     if(invalid_graph == 1) //Make sure the M value chosen is realistic
     {
-        cout << "Invalid graph! Please select an M value such that 4m/3 is less than or equal to " << MAX_NODES << endl;
-        cout << "Currently, m = " << m << " and 4m/3 = " << (4*m)/3 << endl;
+        cout << "Error:\tCould not populate graph.\n\tPlease select an M value such that 4m/3 is less than or equal to " << MAX_NODES << ".\n";
+        cout << "\tCurrently, m = " << m << " and 4m/3 = " << (4*m)/3 << endl;
         return;
     }    
-    cout << "******Populating graph******" << endl;
+    cout << "\n\t*POPULATING GRAPH*" << endl;
     if(m > 150)
     {
-        cout << "This might take a while..." << endl;
+        cout << "Large M value detected. This might take a while..." << endl;
     }
     graph_populated = 1;
     srand(time(NULL));
@@ -93,6 +95,7 @@ void Graph::populateGraph(Graph *g, int m)
             }*/
         for(int j = 0; g->node_edges[i] < g->node_degree[i]; j++) //Keep adding edges until the number of edges for node[i] == the degree of node[i]
         {
+            //      cout << "ID: " << g->edges[i]->id << " Edges: "<< g->node_edges[i] << " Degree: " << g->node_degree[i] <<endl;
             bool edge_exists; //Indicate if we have found a duplicate edge
             do
             {
@@ -143,8 +146,9 @@ void Graph::populateGraph(Graph *g, int m)
                     p = p->next;
                 }
                 
-                if(loop_counter > 100000)  //For large MAX_NODE values, this is a safeguard to prevent infinite looping (since we don't keep track of all y values tested to see if this node will be incomplete)
+                if(loop_counter > 100000)  //Assume after 100000 loops, we've exhausted all possible y values, so break to prevent infinite looping
                 {
+                    all_possibilities_tested = true;
                     break;
                 }
                 
@@ -168,7 +172,7 @@ void Graph::printGraph(Graph *g)
 {
     if(graph_populated == 0)  //Handle being called when graph has yet to be populated
     {
-        cout << "Error: please populate a graph with a valid M value first" << endl;
+        cout << "Error:\tCould not print graph.\n\tPlease populate a graph with a valid M value first." << endl;
         return;
     }
     
@@ -183,13 +187,17 @@ void Graph::printGraph(Graph *g)
         
         while (p != NULL)
         {
-            if(first == 1)
+            if(first == 1)  //Skip one
             {
                 p = p->next;
                 first = !first;
             }
-            printf(" %d", p->id);
-            p = p->next;
+            
+            if(p != NULL)
+            {
+                printf(" %d", p->id);
+                p = p->next;       
+            }            
         }
         if(g->node_degree[i] != g->node_edges[i])
         {
