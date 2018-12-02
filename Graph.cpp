@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Graph.h"
+#include <stdio.h>
+
 using namespace std;
 
 Graph::Graph()
