@@ -15,7 +15,7 @@ Graph::Graph()
 //Initialize new graph
 int Graph::initializeGraph(Graph *g, int m)
 {
-    srand(0);//time(NULL));
+    srand(time(NULL));
     g->num_nodes = 0;
     g->num_edges = 0;
     g->incomplete_nodes = 0;
@@ -67,7 +67,7 @@ void Graph::populateGraph(Graph *g, int m)
         cout << "Large M value detected. This might take a while..." << endl;
     }
     graph_populated = 1;
-    srand(0);//time(NULL));
+    srand(time(NULL));
     
     for(int i = 0; i < MAX_NODES; i++)  //For each node...
     {
@@ -246,15 +246,22 @@ int Graph::bfs(Graph *g, int start, int destination)
     {    
         return 0;  //s = dst
     }
-    bool visited[MAX_NODES];  //Keep track of which nodes have been visited
 
+    bool visited[MAX_NODES];  //Keep track of which nodes have been visited
+    for(int i = 0; i < MAX_NODES; i++) //Initialize all entries of visited to false
+    {
+        visited[i] = false;
+    }
+    
     node *parent[MAX_NODES];  //Keep track of parent nodes
     node *curr_node;  //current node
     node *curr_neighbor;
+    int id;
+          
     
     queue <node* > q;
     q.push(s);
-    cout <<"\n\t*STARTING BFS*\n"<< endl;
+    //cout <<"\n\t*STARTING BFS*\n"<< endl;
     while(!q.empty())
     {
         curr_node = q.front();
@@ -265,10 +272,10 @@ int Graph::bfs(Graph *g, int start, int destination)
         q.pop();
         visited[curr_node->id] = true;
         curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
-
+        
         while(curr_neighbor != nullptr)
         {
-            int id = curr_neighbor->id;
+            id = curr_neighbor->id;
             if(visited[id] == false)  //If neighbor hasn't been visited...
             {
                 q.push(curr_neighbor);  //push it to queue
@@ -285,11 +292,15 @@ int Graph::backtrack(Graph *g, node *parents[MAX_NODES], node *s, node *dst)
 {
     node *p = dst; //temp node pointer
     int distance = 0;
+
+    // cout << endl;
     
     while(p->id != s->id)
     {
         distance++;
+        //    cout << p->id << endl;
         p = parents[p->id];  //go back one edge
     }
+    // cout << p->id <<endl;
     return distance;
 }
