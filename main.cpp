@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
     int greatest_s;
     int greatest_d;
 
+    cout << "\n\t*DIAMETER CALCULATION STARTED*\n";
+    
     //Run BFS a certain number of times and take the largest result as the likely diameter of the graph
     for(int i = 0; i < BFS_SAMPLES; i++)  
     {
@@ -68,6 +70,6 @@ int main(int argc, char *argv[])
         }
     }
     
-    cout << "distance between "<< s << " and " << d << ": " << greatest_distance << endl;
+    cout << "Max diameter: between "<< s << " and " << d << ": " << greatest_distance << endl;
     return 0;
 }
