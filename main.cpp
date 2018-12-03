@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
             greatest_d = d;
         }
     }
-    
-    cout << "Max diameter: between "<< s << " and " << d << ": " << greatest_distance << endl;
+
+    cout << "Diameters calculated: " << BFS_SAMPLES << endl;
+    cout << "Max diameter: from node "<< s << " to node " << d << ": " << greatest_distance << endl;
     return 0;
 }
