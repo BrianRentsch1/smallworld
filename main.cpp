@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     
     if(argc == 1)  //No arguments
     {
-        cout << "\nUsage: \t./project2 <M value>\n\n";
+        cout << "\nUsage: \t" << argv[0] << " <M value>\n\n";
         return 1;
     }
     else if(argc > 2)  //Too many arguments
