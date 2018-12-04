@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     g->populateGraph(g, m);    //Populate graph with avg degree M
     //g->printGraph(g);
     g->simplePrint(g);         //Print stats of graph
-    g->estimateDiameter(g, 10000);    //Estimate diameter of graph
+    g->estimateDiameter(g);    //Estimate diameter of graph
     connected = g->connected(g);
     cout << "Graph connected: " << connected << endl;
     
