@@ -243,8 +243,8 @@ int Graph::estimateDiameter(Graph *g, int samples)
     int bfs_result;
     int s; int d;
     int diameter = 0;
-    int greatest_s;
-    int greatest_d;
+    int greatest_s = 0;
+    int greatest_d = 0;
 
     cout << "\n\t*DIAMETER CALCULATION STARTED*\n\n";
 
@@ -255,9 +255,10 @@ int Graph::estimateDiameter(Graph *g, int samples)
     {
         s = rand()%MAX_NODES;   //Generate random start and dst nodes
         d = rand()%MAX_NODES;   
+        //cout << "BFS STARTED";
         
         bfs_result = g->bfs(g, s, d);  //Run BFS
-//        cout << "Sample " << i <<" /"<< s <<" to " << d<< "/: " << bfs_result << "\n";
+        //cout << "Sample " << i <<" /"<< s <<" to " << d<< "/: " << bfs_result << "\n";
         if(bfs_result > diameter)// && bfs_result != -1)
         {
             diameter = bfs_result;  //Update diameter
@@ -298,12 +299,12 @@ int Graph::bfs(Graph *g, int start)
               
     queue <node* > q;
     q.push(s);
-
+    visited[s->id] = true;        
+    
     while(!q.empty())
     {
         curr_node = q.front();        
         q.pop();
-        visited[curr_node->id] = true;
         nodes_traversed++;
         curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
         
@@ -319,6 +320,7 @@ int Graph::bfs(Graph *g, int start)
             curr_neighbor = curr_neighbor->next;  //advance along list
         }
     }
+    cout << "traversed: " << nodes_traversed << endl;
     if(nodes_traversed == g->num_nodes)  //If we have traversed all nodes in the graph
     {
         return 1;   //We've popped all nodes from our graph, so all nodes have been traversed: e.g. graph is connected
@@ -409,6 +411,9 @@ bool Graph::connected(Graph *g)
         cout << "\nError:\tCould not determine if graph is connected. Graph has not been populated.\n";
         return false;
     }
+
+    cout << "\n\t*CHECKING CONNECTEDNESS*\n\n";
+    
     srand(time(NULL));
     int s = rand() % MAX_NODES;
     int result = g->bfs(g,s);
