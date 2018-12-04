@@ -173,7 +173,7 @@ void Graph::printGraph(Graph *g)
 {
     if(graph_populated == 0)  //Handle being called when graph has yet to be populated
     {
-        cout << "Error:\tCould not print graph.\n\tPlease populate a graph with a valid M value first." << endl;
+        cout << "\nError:\tCould not print graph.\n\tPlease populate a graph with a valid M value first." << endl;
         return;
     }
     
@@ -232,12 +232,109 @@ void Graph::simplePrint(Graph *g)
     cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
 }
 
+int Graph::estimateDiameter(Graph *g, int samples)
+{
+    if(g->graph_populated == 0)
+    {
+        cout << "\nError:\tCould not estimate diameter.\n";
+        return -1;
+    }
+    
+    int bfs_result;
+    int s; int d;
+    int diameter = 0;
+    int greatest_s;
+    int greatest_d;
+
+    cout << "\n\t*DIAMETER CALCULATION STARTED*\n\n";
+
+    srand(time(NULL));  //Seed random generator
+    
+    //Run BFS a certain number of times and take the largest result as the likely diameter of the graph
+    for(int i = 0; i < samples; i++)  
+    {
+        s = rand()%MAX_NODES;   //Generate random start and dst nodes
+        d = rand()%MAX_NODES;   
+        
+        bfs_result = g->bfs(g, s, d);  //Run BFS
+//        cout << "Sample " << i <<" /"<< s <<" to " << d<< "/: " << bfs_result << "\n";
+        if(bfs_result > diameter)// && bfs_result != -1)
+        {
+            diameter = bfs_result;  //Update diameter
+            greatest_s = s;
+            greatest_d = d;
+        }
+    }
+    cout << "Diameters calculated: " << samples << endl;
+    cout << "Max diameter: from node "<< greatest_s << " to node " << greatest_d << ": " << diameter << endl;
+    return diameter;
+}
+
+int Graph::estimateDiameter(Graph *g)
+{
+    return g->estimateDiameter(g, BFS_SAMPLES);
+}
+
+int Graph::bfs(Graph *g, int start)
+{
+    if(start >= MAX_NODES)
+    {
+        cout << "\nError:\tBFS could not be performed.\n\tInvalid start node.\n\n";
+        return -1;  //Error
+    }
+    node *s = g->edges[start];
+        
+    bool visited[MAX_NODES];  //Keep track of which nodes have been visited
+    for(int i = 0; i < MAX_NODES; i++) //Initialize all entries of visited to false
+    {
+        visited[i] = false;
+    }
+    int nodes_traversed = 0;
+    
+    node *parent[MAX_NODES];  //Keep track of parent nodes
+    node *curr_node;  //current node
+    node *curr_neighbor;
+    int id;
+              
+    queue <node* > q;
+    q.push(s);
+
+    while(!q.empty())
+    {
+        curr_node = q.front();        
+        q.pop();
+        visited[curr_node->id] = true;
+        nodes_traversed++;
+        curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
+        
+        while(curr_neighbor != nullptr)
+        {
+            id = curr_neighbor->id;
+            if(visited[id] == false)  //If neighbor hasn't been visited...
+            {
+                q.push(curr_neighbor);  //push it to queue
+                visited[id] = true;   //mark as visited
+                parent[id] = curr_node;            //record parent    
+            }
+            curr_neighbor = curr_neighbor->next;  //advance along list
+        }
+    }
+    if(nodes_traversed == g->num_nodes)  //If we have traversed all nodes in the graph
+    {
+        return 1;   //We've popped all nodes from our graph, so all nodes have been traversed: e.g. graph is connected
+    }
+    else
+    {
+        return 0;  //Graph is not connected    
+    }
+}
+
 int Graph::bfs(Graph *g, int start, int destination)
 {
     if(start >= MAX_NODES || destination >= MAX_NODES)
     {
         cout << "\nError:\tBFS could not be performed.\n\tInvalid start or destination node.\n\n";
-        return -1;  //Error
+        return -2;  //Error
     }
     node *s = g->edges[start];
     node *dst = g->edges[destination];
@@ -303,4 +400,29 @@ int Graph::backtrack(Graph *g, node *parents[MAX_NODES], node *s, node *dst)
     }
     // cout << p->id <<endl;
     return distance;
+}
+
+bool Graph::connected(Graph *g)
+{
+    if(graph_populated == 0)
+    {
+        cout << "\nError:\tCould not determine if graph is connected. Graph has not been populated.\n";
+        return false;
+    }
+    srand(time(NULL));
+    int s = rand() % MAX_NODES;
+    int result = g->bfs(g,s);
+    if(result == 1)
+    {
+        return true;
+    }
+    else if(result == 0)
+    {
+        return false;
+    }
+    else
+    {
+        cout << "\nError:\tConnectedness of graph could not be determined; Invalid call to BFS.\n";
+        return false;
+    }
 }
