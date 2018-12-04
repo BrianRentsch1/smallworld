@@ -1,2 +1,2 @@
 all:
-	g++ *.cpp *.h -o project2
+	g++ *.cpp *.h -o smallWorld
