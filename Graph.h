@@ -1,3 +1,9 @@
+/**************************
+CSC 335 Project 2
+Brian Rentsch, Matt Kilcher
+Fall 2018
+***************************/
+
 #include "node.h"
 #define MAX_NODES 100000  //Our graph will represent a population of 100000
 #define BFS_SAMPLES 100   //Default number of times BFS will be run to determine diameter of graph

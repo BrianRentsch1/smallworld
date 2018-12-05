@@ -1,3 +1,8 @@
+/**************************
+CSC 335 Project 2
+Brian Rentsch, Matt Kilcher
+Fall 2018
+***************************/
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>

@@ -1,3 +1,9 @@
+/**************************
+CSC 335 Project 2
+Brian Rentsch, Matt Kilcher
+Fall 2018
+***************************/
+
 using namespace std;
 
 struct node
