@@ -9,7 +9,8 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     int m;    
-    
+
+    //Parse command line input
     if(argc == 1)  //No arguments
     {
         cout << "\nUsage: \t" << argv[0] << " <M value>\n\n";
@@ -35,10 +36,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    cout << "\nM value: " << m << endl;
+    cout << "\nM value: " << m << endl;  //Display m value to user
     
-    Graph *g = new Graph();
-    bool connected;
+    Graph *g = new Graph();  //Initialize graph
+    bool connected;        
     
     g->populateGraph(g, m);    //Populate graph with avg degree M
     //g->printGraph(g);        //Print entire contents of graph

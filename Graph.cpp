@@ -49,12 +49,13 @@ void Graph::insertEdge(Graph *g, int x, int y, bool duplicate)
     g->num_edges += 1;   //Increment number of edges in graph 
 }
 
+//Populate the graph with edges. This function manages the random number generation of which edges to add, and makes sure no duplicate or invalid edges are inserted.
 void Graph::populateGraph(Graph *g, int m)
 {
     int y;
     int invalid_graph;
     
-    invalid_graph = initializeGraph(g, m);
+    invalid_graph = initializeGraph(g, m);   //Initialize graph
 
     if(invalid_graph == 1) //Make sure the M value chosen is realistic
     {
@@ -62,71 +63,26 @@ void Graph::populateGraph(Graph *g, int m)
         cout << "\tCurrently, M = " << m << " and 4m/3 = " << (4*m)/3 << endl;
         return;
     }    
-    cout << "\n\t*POPULATING GRAPH*" << endl;
-    if(m > 150)
-    {
-        cout << "Large M value detected. This might take a while..." << endl;
-    }
-    graph_populated = 1;
-    //srand(time(NULL));
+
+    cout << "\n\t*POPULATING GRAPH*" << endl;   //Display status of program
+    
+    graph_populated = 1;  //Indicate graph is being populated
     
     for(int i = 0; i < MAX_NODES; i++)  //For each node...
     {
         node *p = g->edges[i];  //temporary node pointer
+        
+        bool exhausted = false;  //Keep track if we have exhausted possible new edges to add
+        int loop_counter = 0;   //Value to prevent infinite looping if no suitable new edge can be found
 
-        //Variables used to prevent looping (used for small MAX_NODE values only
-        bool unique_found;
-        bool all_possibilities_tested = false;
-        //       int past_ys[MAX_NODES];            
-        int uniques_tested = 0;
-
-        int loop_counter = 0;   //Value to prevent looping at large MAX_NODE values
-
-        /*The purpose of this array is to hold all unique random y values we get. We do this in order to see if we have tested every possible y value, 
-          in case it is impossible to completely populate a node due to limitations based on the M value. What I mean by this is, if all people only know a 
-          small amount of people (M people on average), then those relationships get filled quickly while populating the graph. Each node has a respective 
-          degree, meaning they should have DEGREE edges to other nodes, but this may not be possible if the other nodes have already filled their own 
-          degrees, and if the remaining eligible nodes without their degrees filled are already edges connected to the node in question. Thus, incomplete 
-          nodes are left in the graph. "Incomplete" meaning they have a degree higher than the number of unique edges that could be given to them.*/
-        /* if(MAX_NODES < 1000)   //This operation becomes too expensive at large MAX_NODE values
-        {        
-            for(int p = 0; p < MAX_NODES; p++)
-            {
-                past_ys[p] = -1;   //Fill array of previously tested ys with -1s ("indicating blanks")
-            }
-            }*/
         for(int j = 0; g->node_edges[i] < g->node_degree[i]; j++) //Keep adding edges until the number of edges for node[i] == the degree of node[i]
         {
-            //      cout << "ID: " << g->edges[i]->id << " Edges: "<< g->node_edges[i] << " Degree: " << g->node_degree[i] <<endl;
             bool edge_exists; //Indicate if we have found a duplicate edge
             do
             {
                 p = g->edges[i]; //Point p to the top of the current node's linked list
 
                 y = rand() % MAX_NODES;  //Generate a random node to make an edge with                
-
-                /*   if(MAX_NODES < 1000)    //Complete this processing only if we are using the "past_ys" array previously declared
-                {
-                    unique_found = true;  //Start with unique_found being true
-                    
-                    for(int p = 0; p < MAX_NODES; p++)   //Search the array of past y's
-                    {
-                        if (past_ys[p] == y)   //If we find a duplicate
-                        {
-                            unique_found = false;   //...we won't add it to the array
-                        }
-                    }
-                    if(unique_found == true)    //If we find a unique value
-                    {
-                        past_ys[uniques_tested] = y;   //...add it to the array
-                        uniques_tested++;   //We found one more unique y value
-                    }
-                    if(uniques_tested >= MAX_NODES)   //If we have found all possible unique y values (and none of them were adequate to make a unique edge)
-                    {
-                        all_possibilities_tested = true;   //...we need to leave this loop, else we will loop forever
-                        break;
-                        }
-                }*/
 
                 //Traverse linked list of our current node to find if edge (x,y) already exists                
                 while(p != nullptr)
@@ -145,12 +101,12 @@ void Graph::populateGraph(Graph *g, int m)
                         edge_exists = false;  //Edge will not be a duplicate -- OK to insert
                     }
                     
-                    p = p->next;
+                    p = p->next;  //Advance along list
                 }
                 
-                if(loop_counter > 100000)  //Assume after 100000 loops, we've exhausted all possible y values, so break to prevent infinite looping
+                if(loop_counter > 100000)  //Assume after 100000 loops, we've exhausted all possible y values, so break from loop to prevent infinite looping
                 {
-                    all_possibilities_tested = true;
+                    exhausted = true;
                     break;
                 }
                 
@@ -158,11 +114,11 @@ void Graph::populateGraph(Graph *g, int m)
 
             } while(y == i || node_edges[y] == node_degree[y] || edge_exists);  //Repeatedly pick a new y value if node y already has its full degree of edges or if (x,y) is an edge that already exits
 
-            if(all_possibilities_tested == false)  //If this node did not exhaust all possible y values, we insert an edge
+            if(exhausted == false)  //If this node did not exhaust all possible y values, we insert an edge
             {
                 insertEdge(g,i,y,false);
             }
-            else  //Otherwise, we break and proceed to the next node, as no other edges can be added to this node
+            else  //Otherwise, we break and proceed to the next node, as no other edges can be added to this node. This results in an "incomplete node"
             {
                 break;
             }
@@ -170,6 +126,7 @@ void Graph::populateGraph(Graph *g, int m)
     }    
 }
 
+//Print out entire contents of graph
 void Graph::printGraph(Graph *g)
 {
     if(graph_populated == 0)  //Handle being called when graph has yet to be populated
@@ -180,11 +137,11 @@ void Graph::printGraph(Graph *g)
     
     node *p;   //temporary pointer
 
-    for(int i = 0; i < g->num_nodes; i++)
+    for(int i = 0; i < g->num_nodes; i++)  //For all nodes in the graph...
     {
         int first = 1;  //Keep track of whether or not this is the head of the current linked list, for special formatting
         
-        printf("%d: ", i);
+        printf("%d: ", i);  //Print current node whose edges we are about to list
         p = g->edges[i];
         
         while (p != NULL)
@@ -197,22 +154,24 @@ void Graph::printGraph(Graph *g)
             
             if(p != NULL)
             {
-                printf(" %d", p->id);
-                p = p->next;       
+                printf(" %d", p->id);   //Print edge
+                p = p->next;       //Advance to next edge
             }            
         }
-        if(g->node_degree[i] != g->node_edges[i])
+        if(g->node_degree[i] != g->node_edges[i])  //Detect an incomplete node
         {
-            printf(" // expected: %d actual: %d\n", g->node_degree[i], g->node_edges[i]);
+            printf(" // expected edges: %d actual edges: %d\n", g->node_degree[i], g->node_edges[i]);
             g->incomplete_nodes += 1;
         }
         else cout << endl;
     }
+    //Print out stats about the graph
     cout <<endl<< "Total nodes: " << g->num_nodes << endl;
     cout << "Total edges: " << g->num_edges << endl;
     cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
 }
 
+//Don't print out the entire graph, just print out stats
 void Graph::simplePrint(Graph *g)
 {
     if(graph_populated == 0)  //Handle being called when graph has yet to be populated
@@ -221,21 +180,23 @@ void Graph::simplePrint(Graph *g)
         return;
     }
     
-    for(int i = 0; i < g->num_nodes; i++)
+    for(int i = 0; i < g->num_nodes; i++)  //For all nodes in the graph...
     {        
-        if(g->node_degree[i] != g->node_edges[i])
+        if(g->node_degree[i] != g->node_edges[i])  //Detect incomplete nodes
         {
             g->incomplete_nodes += 1;
         }
     }
+    //Print stats
     cout <<endl<< "Total nodes: " << g->num_nodes << endl;
     cout << "Total edges: " << g->num_edges << endl;
     cout << "Total nodes left incomplete: " << g->incomplete_nodes << endl;
 }
 
+//Estimate the diameter of the graph, with a user-specified number of samples to take
 int Graph::estimateDiameter(Graph *g, int samples)
 {
-    if(g->graph_populated == 0)
+    if(g->graph_populated == 0)   //Handle being called when graph isn't populated
     {
         cout << "\nError:\tCould not estimate diameter.\n";
         return -1;
@@ -248,69 +209,71 @@ int Graph::estimateDiameter(Graph *g, int samples)
     int greatest_d = 0;
 
     cout << "\n\t*DIAMETER CALCULATION STARTED*\n\n";
-
-    //srand(time(NULL));  //Seed random generator
     
     //Run BFS a certain number of times and take the largest result as the likely diameter of the graph
     for(int i = 0; i < samples; i++)  
     {
-        s = rand()%MAX_NODES;   //Generate random start and dst nodes
+        s = rand()%MAX_NODES;   //Generate random start and destination nodes
         d = rand()%MAX_NODES;   
-        //cout << "BFS STARTED";
         
         bfs_result = g->bfs(g, s, d);  //Run BFS
-        //cout << "Sample " << i <<" /"<< s <<" to " << d<< "/: " << bfs_result << "\n";
-        if(bfs_result > diameter)// && bfs_result != -1)
+
+        if(bfs_result > diameter)   //Is our new result a new maximum diameter?
         {
             diameter = bfs_result;  //Update diameter
-            greatest_s = s;
+            greatest_s = s;         //Keep track of which nodes form the longest shortest path
             greatest_d = d;
         }
     }
+    
     cout << "Diameters calculated: " << samples << endl;
-    cout << "Max diameter: from node "<< greatest_s << " to node " << greatest_d << ": " << diameter << endl;
+    cout << "Max diameter: " << diameter << endl;
+
     return diameter;
 }
 
+//Estimate diameter with default number of samples
 int Graph::estimateDiameter(Graph *g)
 {
-    return g->estimateDiameter(g, BFS_SAMPLES);
+    return g->estimateDiameter(g, BFS_SAMPLES); //BFS_SAMPLES defined in Graph.h
 }
 
+//Breadth-first search function. This function traverses all nodes in the graph from a given starting node and determines if the graph is connected.
 int Graph::bfs(Graph *g, int start)
 {
-    if(start >= MAX_NODES)
+    if(start >= MAX_NODES || start < 0)  //Handle incorrect starting node
     {
         cout << "\nError:\tBFS could not be performed.\n\tInvalid start node.\n\n";
         return -1;  //Error
     }
+    
     node *s = g->edges[start];
-        
+    
     bool visited[MAX_NODES];  //Keep track of which nodes have been visited
     for(int i = 0; i < MAX_NODES; i++) //Initialize all entries of visited to false
     {
         visited[i] = false;
     }
-    int nodes_traversed = 0;
+    int nodes_traversed = 0;  //Count how many nodes we have traversed (to determine if graph is connected or not)
     
     node *curr_node;  //current node
-    node *curr_neighbor;
-    int id;
+    node *curr_neighbor;  //Current neighbor of current node
+    int id;           //ID of current neighbor
               
-    queue <node* > q;
-    q.push(s);
-    visited[s->id] = true;        
+    queue <node* > q;   //Queue to process nodes
+    q.push(s);          //Push starting node to queue
+    visited[s->id] = true;        //Indicate starting node has been visited
     
     while(!q.empty())
     {
-        curr_node = q.front();        
-        q.pop();
-        nodes_traversed++;
+        curr_node = q.front();  //Get front of queue        
+        q.pop();                //Pop from queue, indicating the node has been traversed
+        nodes_traversed++;      //Keep track of how many nodes have been poppped
         curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
         
-        while(curr_neighbor != nullptr)
+        while(curr_neighbor != nullptr)  //For all neighbors of our current node
         {
-            id = curr_neighbor->id;
+            id = curr_neighbor->id;   //Get node ID
             if(visited[id] == false)  //If neighbor hasn't been visited...
             {
                 q.push(curr_neighbor);  //push it to queue
@@ -329,9 +292,10 @@ int Graph::bfs(Graph *g, int start)
     }
 }
 
+//BFS algorithm for finding the shortest path between two specified nodes. Used for determining the diameter of the graph.
 int Graph::bfs(Graph *g, int start, int destination)
 {
-    if(start >= MAX_NODES || destination >= MAX_NODES)
+    if(start >= MAX_NODES || start < 0 || destination >= MAX_NODES || destination < 0) //Handle incorrect nodes
     {
         cout << "\nError:\tBFS could not be performed.\n\tInvalid start or destination node.\n\n";
         return -2;  //Error
@@ -339,9 +303,9 @@ int Graph::bfs(Graph *g, int start, int destination)
     node *s = g->edges[start];
     node *dst = g->edges[destination];
     
-    if(s->id == dst->id)
+    if(s->id == dst->id)  
     {    
-        return 0;  //s = dst
+        return 0;  //start and destination are the same
     }
 
     bool visited[MAX_NODES];  //Keep track of which nodes have been visited
@@ -350,23 +314,24 @@ int Graph::bfs(Graph *g, int start, int destination)
         visited[i] = false;
     }
     
-    node *parent[MAX_NODES];  //Keep track of parent nodes
+    node *parent[MAX_NODES];  //Keep track of parent nodes for backtracking later
     node *curr_node;  //current node
-    node *curr_neighbor;
-    int id;
+    node *curr_neighbor; //current neighbor of current node
+    int id;   //ID of current neighbor
           
     
-    queue <node* > q;
-    q.push(s);
+    queue <node* > q;  //Queue for processing nodes
+    q.push(s);    //Push start to queue
+    
     while(!q.empty())
     {
-        curr_node = q.front();
+        curr_node = q.front();  //Get first item in queue
         if(curr_node->id == dst->id)  //If we have found our destination...
         {
-            return backtrack(g,parent,s,dst);
+            return backtrack(g,parent,s,dst);  //...Find the shortest path from start to dst
         }
-        q.pop();
-        visited[curr_node->id] = true;
+        q.pop(); 
+        visited[curr_node->id] = true;  //current node has been processed
         curr_neighbor = g->edges[curr_node->id]->next;  //curr_neighbor = first edge of curr_node
         
         while(curr_neighbor != nullptr)
@@ -384,37 +349,35 @@ int Graph::bfs(Graph *g, int start, int destination)
     return -1;  //DST not found in graph containing s    
 }
 
+//Backtrack through parent array and determine shortest path between s and dst
 int Graph::backtrack(Graph *g, node *parents[MAX_NODES], node *s, node *dst)
 {
     node *p = dst; //temp node pointer
     int distance = 0;
-
-    // cout << endl;
     
     while(p->id != s->id)
     {
-        distance++;
-        //    cout << p->id << endl;
+        distance++;  //Increment path length
         p = parents[p->id];  //go back one edge
     }
-    // cout << p->id <<endl;
     return distance;
 }
 
+//Determine if the graph is connected by calling BFS
 bool Graph::connected(Graph *g)
 {
-    if(graph_populated == 0)
+    if(graph_populated == 0)  //Handle being called when graph isn't populated
     {
         cout << "\nError:\tCould not determine if graph is connected. Graph has not been populated.\n";
         return false;
     }
 
-    cout << "\n\t*CHECKING CONNECTEDNESS*\n\n";
-    
-    int s = rand() % MAX_NODES;
-    int result = g->bfs(g,s);
+    cout << "\n\t*CHECKING CONNECTEDNESS*\n\n";  //Print status to console
+     
+    int s = rand() % MAX_NODES;  //Generate a random starting node
+    int result = g->bfs(g,s);   //Run BFS
 
-    if(result == 1)
+    if(result == 1)   //Handle result
     {
         return true;
     }
