@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    int m;
+    int m;    
     
     if(argc == 1)  //No arguments
     {
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     else if(argc > 2)  //Too many arguments
     {
         cout << "\nError: too many arguments\n";
-        cout << "\nUsage: \t./project2 <M value>\n\n";           
+        cout << "\nUsage: \t" << argv[0] << " <M value>\n\n";           
         return 1;
     }
     else    //Correct number of arguments
@@ -30,21 +30,22 @@ int main(int argc, char *argv[])
         catch(...)  //If conversion fails, handle exception
         {           
             cout << "\nError: your M value should be an integer\n";
-            cout << "\nUsage: \t./project2 <M value>\n\n";
+            cout << "\nUsage: \t" << argv[0] << " <M value>\n\n";
             return 1;
         }
     }
 
+    cout << "\nM value: " << m << endl;
     
     Graph *g = new Graph();
     bool connected;
     
     g->populateGraph(g, m);    //Populate graph with avg degree M
-    //g->printGraph(g);
+    //g->printGraph(g);        //Print entire contents of graph
     g->simplePrint(g);         //Print stats of graph
     g->estimateDiameter(g);    //Estimate diameter of graph
-    connected = g->connected(g);
-    cout << "Graph connected: " << connected << endl;
-    
+    connected = g->connected(g);    
+    cout << "Graph connected: " << connected << endl;   //If connected = 1, graph is connected;  if connected = 0, graph is disconnected   
+
     return 0;
 }

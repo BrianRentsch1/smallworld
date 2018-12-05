@@ -15,22 +15,22 @@ Graph::Graph()
 //Initialize new graph
 int Graph::initializeGraph(Graph *g, int m)
 {
-    srand(time(NULL));
-    g->num_nodes = 0;
-    g->num_edges = 0;
-    g->incomplete_nodes = 0;
-    if((4*m)/3 > MAX_NODES)
+    srand(time(NULL));  //Set random seed for all graph operations based on time
+    g->num_nodes = 0;   //Initialize number of nodes in graph to 0
+    g->num_edges = 0;   //Initialize number of edges in graph to 0
+    g->incomplete_nodes = 0;    //Track incomplete nodes
+    if((4*m)/3 > MAX_NODES)   //If M is too large, return with error
     {        
         return 1;
     }
-    g->m = m;
+    g->m = m;   //Set M value of graph
     
     for(int i = 0; i < MAX_NODES; i++) //For all nodes, set random degree and initialize place in adjecency list as null
     {
         g->node_edges[i] = 0;   //Currently no edges in graph, so each node has 0 edges
         g->node_degree[i] = rand() % (((4*g->m)/3) - ((2*g->m)/3) + 1) + ((2*g->m)/3);  //generate random degree between 2/3m and and 4/3m for each node
-        g->edges[i] = new node(i);
-        num_nodes++;
+        g->edges[i] = new node(i);  //Fill adjacency list with new nodes, with each node having an ID equal to their index in the array
+        num_nodes++;           //Increment number of nodes in graph
     }
     return 0;
 }
@@ -38,27 +38,28 @@ int Graph::initializeGraph(Graph *g, int m)
 //Insert an edge into the graph
 void Graph::insertEdge(Graph *g, int x, int y, bool duplicate)
 {
-    //cout << "Inserting an edge (" << x << "," <<y<< ")" <<endl;
     node *p = new node(y);  //Allocate new node
     p->next = g->edges[x]->next;  //Append list to end of new node
     g->edges[x]->next = p;  //Insert new node at head of list
     g->node_edges[x] += 1;  //Node x has one more edge 
-    if(duplicate == false)
+    if(duplicate == false)  //Since our edges are undirected, we need to insert 2 edges every time we call insertEdge
     {
         insertEdge(g,y,x,true);  //This is undirected graph, so insert an edge in y's list    
     }
-    g->num_edges += 1;    
+    g->num_edges += 1;   //Increment number of edges in graph 
 }
 
 void Graph::populateGraph(Graph *g, int m)
 {
     int y;
     int invalid_graph;
+    
     invalid_graph = initializeGraph(g, m);
+
     if(invalid_graph == 1) //Make sure the M value chosen is realistic
     {
         cout << "Error:\tCould not populate graph.\n\tPlease select an M value such that 4m/3 is less than or equal to " << MAX_NODES << ".\n";
-        cout << "\tCurrently, m = " << m << " and 4m/3 = " << (4*m)/3 << endl;
+        cout << "\tCurrently, M = " << m << " and 4m/3 = " << (4*m)/3 << endl;
         return;
     }    
     cout << "\n\t*POPULATING GRAPH*" << endl;
@@ -67,7 +68,7 @@ void Graph::populateGraph(Graph *g, int m)
         cout << "Large M value detected. This might take a while..." << endl;
     }
     graph_populated = 1;
-    srand(time(NULL));
+    //srand(time(NULL));
     
     for(int i = 0; i < MAX_NODES; i++)  //For each node...
     {
@@ -248,7 +249,7 @@ int Graph::estimateDiameter(Graph *g, int samples)
 
     cout << "\n\t*DIAMETER CALCULATION STARTED*\n\n";
 
-    srand(time(NULL));  //Seed random generator
+    //srand(time(NULL));  //Seed random generator
     
     //Run BFS a certain number of times and take the largest result as the likely diameter of the graph
     for(int i = 0; i < samples; i++)  
@@ -292,7 +293,6 @@ int Graph::bfs(Graph *g, int start)
     }
     int nodes_traversed = 0;
     
-    node *parent[MAX_NODES];  //Keep track of parent nodes
     node *curr_node;  //current node
     node *curr_neighbor;
     int id;
@@ -315,12 +315,10 @@ int Graph::bfs(Graph *g, int start)
             {
                 q.push(curr_neighbor);  //push it to queue
                 visited[id] = true;   //mark as visited
-                parent[id] = curr_node;            //record parent    
             }
             curr_neighbor = curr_neighbor->next;  //advance along list
         }
     }
-    cout << "traversed: " << nodes_traversed << endl;
     if(nodes_traversed == g->num_nodes)  //If we have traversed all nodes in the graph
     {
         return 1;   //We've popped all nodes from our graph, so all nodes have been traversed: e.g. graph is connected
@@ -360,7 +358,6 @@ int Graph::bfs(Graph *g, int start, int destination)
     
     queue <node* > q;
     q.push(s);
-    //cout <<"\n\t*STARTING BFS*\n"<< endl;
     while(!q.empty())
     {
         curr_node = q.front();
@@ -414,9 +411,9 @@ bool Graph::connected(Graph *g)
 
     cout << "\n\t*CHECKING CONNECTEDNESS*\n\n";
     
-    srand(time(NULL));
     int s = rand() % MAX_NODES;
     int result = g->bfs(g,s);
+
     if(result == 1)
     {
         return true;
